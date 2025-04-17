@@ -6,6 +6,7 @@ import model.CaesarCipher;
 import model.VigenereCipher;
 import view.CryptoView;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.security.SecureRandom;
@@ -51,9 +52,18 @@ public class CryptoController {
 
         try {
             if (algo.contains("Caesar")) {
-                int shift = Integer.parseInt(key);
-                view.outputArea.setText(CaesarCipher.encrypt(text, shift));
-            } else if (algo.contains("Vigenere")) {
+                if (key.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(view, "Key rỗng", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                try {
+                    int shift = Integer.parseInt(key);
+                    view.outputArea.setText(CaesarCipher.encrypt(text, shift));
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(view, "Chỉ có thể nhập SỐ", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            else if (algo.contains("Vigenere")) {
                 view.outputArea.setText(VigenereCipher.encrypt(text, key));
             } else {
                 view.outputArea.setText("Chưa hỗ trợ thuật toán này");
@@ -70,9 +80,18 @@ public class CryptoController {
 
         try {
             if (algo.contains("Caesar")) {
-                int shift = Integer.parseInt(key);
-                view.outputArea.setText(CaesarCipher.decrypt(text, shift));
-            } else if (algo.contains("Vigenere")) {
+                if (key.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(view, "Key rỗng", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                try {
+                    int shift = Integer.parseInt(key);
+                    view.outputArea.setText(CaesarCipher.decrypt(text, shift));
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(view, "Chỉ có thể nhập SỐ", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            else if (algo.contains("Vigenere")) {
                 view.outputArea.setText(VigenereCipher.decrypt(text, key));
             } else {
                 view.outputArea.setText("Chưa hỗ trợ thuật toán này");
