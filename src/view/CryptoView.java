@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 import view.DESView; // nếu DESView nằm trong package view
+import  view.AESView;
 
 public class CryptoView extends JFrame {
     public JTabbedPane tabbedPane;
@@ -32,6 +33,10 @@ public class CryptoView extends JFrame {
     public JTextField[][] matrixFields;
 
     public DESView desView;
+    public AESView aesView;
+    private JPanel cryptoCardPanel;
+    private CardLayout cardLayout;
+
 
     public CryptoView() {
         setTitle("Ứng dụng Mã hóa/Giải mã");
@@ -42,8 +47,24 @@ public class CryptoView extends JFrame {
         tabbedPane = new JTabbedPane();
         traditionalPanel = new JPanel(new BorderLayout());
         symmetricPanel = new JPanel(new BorderLayout());
+        JPanel algoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JComboBox<String> algorithmSelector = new JComboBox<>(new String[]{"DES", "AES"});
+        algoPanel.add(new JLabel("Chọn thuật toán:"));
+        algoPanel.add(algorithmSelector);
+        symmetricPanel.add(algoPanel, BorderLayout.NORTH);
+        algorithmSelector.addActionListener(e -> {
+            String selected = (String) algorithmSelector.getSelectedItem();
+            cardLayout.show(cryptoCardPanel, selected);
+        });
+
+        // Tạo layout chuyển đổi giữa DES và AES
+        cardLayout = new CardLayout();
+        cryptoCardPanel = new JPanel(cardLayout);
         desView = new DESView();
-        symmetricPanel.add(desView, BorderLayout.CENTER);
+        aesView = new AESView();
+        cryptoCardPanel.add(desView, "DES");
+        cryptoCardPanel.add(aesView, "AES");
+        symmetricPanel.add(cryptoCardPanel, BorderLayout.CENTER);
         asymmetric = new JPanel(new BorderLayout());
         hashPanel = new JPanel(new BorderLayout());
 
