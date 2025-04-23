@@ -120,6 +120,16 @@ public class CryptoView extends JFrame {
             keyPanel.add(keyAField);
             keyPanel.add(new JLabel("Key B:"));
             keyPanel.add(keyBField);
+            JButton generateAffineKeyButton = new JButton("Tạo Key");
+            generateAffineKeyButton.addActionListener(e -> {
+                int[] aOptions = {1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25};
+                Random rand = new Random();
+                int a = aOptions[rand.nextInt(aOptions.length)];
+                int b = rand.nextInt(26);
+                keyAField.setText(String.valueOf(a));
+                keyBField.setText(String.valueOf(b));
+            });
+            keyPanel.add(generateAffineKeyButton);
         } else if (algorithm.equals("Hill")) {
             hillPanel = new JPanel(new BorderLayout());
             JPanel configMatrixPanel = new JPanel(new FlowLayout());

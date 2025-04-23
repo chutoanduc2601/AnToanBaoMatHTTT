@@ -6,7 +6,9 @@ import model.CaesarCipher;
 import model.HillCipher;
 import model.SubstitutionCipher;
 import model.VigenereCipher;
+import model.AffineCipher;
 import view.CryptoView;
+
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -92,7 +94,16 @@ public class CryptoController {
                     return;
                 }
                 view.outputArea.setText(SubstitutionCipher.encrypt(text, key));
-            }else if (algo.contains("Hill")) {
+            }else if (algo.contains("Affine")) {
+                try {
+                    int a = Integer.parseInt(view.keyAField.getText().trim());
+                    int b = Integer.parseInt(view.keyBField.getText().trim());
+                    view.outputArea.setText(AffineCipher.encrypt(text, a, b));
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(view, "Key Affine không hợp lệ. Định dạng key phải là Số N guyên", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            else if (algo.contains("Hill")) {
                 int size = view.matrixFields.length;
                 int[][] matrix = new int[size][size];
 
@@ -144,7 +155,16 @@ public class CryptoController {
             }
             else if (algo.contains("Vigenere")) {
                 view.outputArea.setText(VigenereCipher.decrypt(text, key));
-            } else {
+            }else if (algo.contains("Affine")) {
+                try {
+                    int a = Integer.parseInt(view.keyAField.getText().trim());
+                    int b = Integer.parseInt(view.keyBField.getText().trim());
+                    view.outputArea.setText(AffineCipher.decrypt(text, a, b));
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(view, "Key Affine không hợp lệ. Đảm bảo a,b là số nguyên và a nguyên tố cùng nhau với 26", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            else {
                 view.outputArea.setText("Chưa hỗ trợ thuật toán này");
             }
         } catch (Exception e) {
