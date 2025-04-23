@@ -3,6 +3,7 @@ package controller;
 
 //import model.*;
 import model.CaesarCipher;
+import model.HillCipher;
 import model.SubstitutionCipher;
 import model.VigenereCipher;
 import view.CryptoView;
@@ -91,7 +92,30 @@ public class CryptoController {
                     return;
                 }
                 view.outputArea.setText(SubstitutionCipher.encrypt(text, key));
+            }else if (algo.contains("Hill")) {
+                int size = view.matrixFields.length;
+                int[][] matrix = new int[size][size];
+
+                try {
+                    for (int i = 0; i < size; i++) {
+                        for (int j = 0; j < size; j++) {
+                            matrix[i][j] = Integer.parseInt(view.matrixFields[i][j].getText());
+                        }
+                    }
+
+                    if (!HillCipher.isInvertible(matrix)) {
+                        JOptionPane.showMessageDialog(view, "Ma trận không khả nghịch (det không nguyên tố cùng nhau với 26)", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    String result = HillCipher.encrypt(view.inputArea.getText(), matrix);
+                    view.outputArea.setText(result);
+
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(view, "Lỗi định dạng ma trận!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
             }
+
             else {
                 view.outputArea.setText("Chưa hỗ trợ thuật toán này");
             }

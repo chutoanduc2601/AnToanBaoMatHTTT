@@ -1,16 +1,34 @@
-// === CryptoView.java ===
 package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
 
 public class CryptoView extends JFrame {
     public JTabbedPane tabbedPane;
     public JPanel traditionalPanel;
+    public JPanel symmetricPanel;
+    public JPanel asymmetric;
+    public JPanel hashPanel;
+
     public JComboBox<String> algorithmCombo;
     public JTextArea keyField;
     public JTextArea inputArea, outputArea;
     public JButton encryptButton, decryptButton, generateKeyButton;
+    public JTextField keyAField;
+    public JTextField keyBField;
+    public JPanel affineKeyPanel;
+
+    JPanel algorithmPanel;
+    JPanel keyPanel;
+    JPanel buttonPanel;
+    JPanel hillPanel;
+    JTextField matrixSizeField;
+    JPanel matrixInputPanel;
+    public JTextField[][] matrixFields;
 
     public CryptoView() {
         setTitle("Ứng dụng Mã hóa/Giải mã");
@@ -20,24 +38,46 @@ public class CryptoView extends JFrame {
 
         tabbedPane = new JTabbedPane();
         traditionalPanel = new JPanel(new BorderLayout());
+        symmetricPanel = new JPanel(new BorderLayout());
+        asymmetric = new JPanel(new BorderLayout());
+        hashPanel = new JPanel(new BorderLayout());
+
         tabbedPane.addTab("Mã hóa truyền thống", traditionalPanel);
+        tabbedPane.addTab("Mã hóa đối xứng", symmetricPanel);
+        tabbedPane.addTab("Mã hóa bất đối xứng", asymmetric);
+        tabbedPane.addTab("Hàm băm", hashPanel);
         add(tabbedPane, BorderLayout.CENTER);
 
-        JPanel configPanel = new JPanel(new FlowLayout());
+        JPanel configPanel = new JPanel(new BorderLayout());
+
+        algorithmPanel = new JPanel(new FlowLayout());
+        keyPanel = new JPanel(new FlowLayout());
+        buttonPanel = new JPanel(new FlowLayout());
+        hillPanel = new JPanel();
+
         algorithmCombo = new JComboBox<>(new String[]{"Caesar(dịch chuyển)", "Vigenere", "Substitution", "Affine", "Hill"});
-        keyField = new JTextArea(4, 25);  // 4 dòng, 25 cột
+        algorithmPanel.add(new JLabel("Chọn thuật toán:"));
+        algorithmPanel.add(algorithmCombo);
+
+        keyField = new JTextArea(4, 25);
         keyField.setLineWrap(true);
         keyField.setWrapStyleWord(true);
         JScrollPane keyScrollPane = new JScrollPane(keyField);
         generateKeyButton = new JButton("Tạo Key");
         JButton chooseKeyButton = new JButton("Chọn Key");
+        keyPanel.add(new JLabel("Nhập key hoặc tạo Key:"));
+        keyPanel.add(keyScrollPane);
+        keyPanel.add(generateKeyButton);
+        keyPanel.add(chooseKeyButton);
 
-        configPanel.add(new JLabel("Chọn thuật toán:"));
-        configPanel.add(algorithmCombo);
-        configPanel.add(new JLabel("Nhập key hoặc tạo Key:"));
-        configPanel.add(keyScrollPane);
-        configPanel.add(generateKeyButton);
-        configPanel.add(chooseKeyButton);
+        encryptButton = new JButton("Mã hóa");
+        decryptButton = new JButton("Giải mã");
+        buttonPanel.add(encryptButton);
+        buttonPanel.add(decryptButton);
+
+        configPanel.add(algorithmPanel, BorderLayout.NORTH);
+        configPanel.add(keyPanel, BorderLayout.CENTER);
+        configPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         traditionalPanel.add(configPanel, BorderLayout.NORTH);
 
@@ -60,14 +100,133 @@ public class CryptoView extends JFrame {
 
         traditionalPanel.add(ioPanel, BorderLayout.CENTER);
 
-        JPanel actionPanel = new JPanel();
-        encryptButton = new JButton("Mã hóa");
-        decryptButton = new JButton("Giải mã");
-        actionPanel.add(encryptButton);
-        actionPanel.add(decryptButton);
-
-        traditionalPanel.add(actionPanel, BorderLayout.SOUTH);
+        algorithmCombo.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String selectedAlgorithm = (String) algorithmCombo.getSelectedItem();
+                updateAlgorithmUI(selectedAlgorithm);
+            }
+        });
 
         setVisible(true);
+    }
+
+    private void updateAlgorithmUI(String algorithm) {
+        keyPanel.removeAll();
+
+        if (algorithm.equals("Affine")) {
+            keyAField = new JTextField(5);
+            keyBField = new JTextField(5);
+            keyPanel.add(new JLabel("Key A:"));
+            keyPanel.add(keyAField);
+            keyPanel.add(new JLabel("Key B:"));
+            keyPanel.add(keyBField);
+        } else if (algorithm.equals("Hill")) {
+            hillPanel = new JPanel(new BorderLayout());
+            JPanel configMatrixPanel = new JPanel(new FlowLayout());
+            JTextField rowField = new JTextField("2", 2);
+            JTextField colField = new JTextField("2", 2);
+            configMatrixPanel.add(new JLabel("Nhập kích thước ma trận:"));
+            configMatrixPanel.add(rowField);
+            configMatrixPanel.add(new JLabel("X"));
+            configMatrixPanel.add(colField);
+            hillPanel.add(configMatrixPanel, BorderLayout.NORTH);
+
+            matrixInputPanel = new JPanel();
+            matrixFields = new JTextField[2][2];
+            generateMatrixFields(2, 2);
+            hillPanel.add(matrixInputPanel, BorderLayout.SOUTH);
+
+            JPanel matrixButtons = new JPanel(new FlowLayout());
+            JButton generateMatrixButton = new JButton("Tạo ma trận");
+            generateMatrixButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        int rows = Integer.parseInt(rowField.getText());
+                        int cols = Integer.parseInt(colField.getText());
+                        if (rows > 5 || cols > 5) {
+                            JOptionPane.showMessageDialog(null, "Kích thước tối đa là 5x5.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        generateMatrixFields(rows, cols);
+                        fillMatrixRandomly(rows, cols);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(null, "Vui lòng nhập số nguyên hợp lệ.", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
+            matrixButtons.add(generateMatrixButton);
+            JButton chooseMatrixButton = new JButton("Chọn ma trận");
+            chooseMatrixButton.addActionListener(e -> {
+                JOptionPane.showMessageDialog(this, "Đã chọn ma trận!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            });
+            matrixButtons.add(chooseMatrixButton);
+            JButton saveMatrixButton = new JButton("Lưu ma trận");
+            saveMatrixButton.addActionListener(e -> saveMatrixToFile());
+            matrixButtons.add(saveMatrixButton);
+            hillPanel.add(matrixButtons, BorderLayout.CENTER);
+
+            keyPanel.setLayout(new BorderLayout());
+            keyPanel.add(hillPanel, BorderLayout.CENTER);
+        } else {
+            keyPanel.setLayout(new FlowLayout());
+            keyPanel.add(new JLabel("Nhập key hoặc tạo Key:"));
+            keyPanel.add(new JScrollPane(keyField));
+            keyPanel.add(generateKeyButton);
+            keyPanel.add(new JButton("Chọn Key"));
+        }
+
+        keyPanel.revalidate();
+        keyPanel.repaint();
+    }
+
+
+
+    private void generateMatrixFields(int rows, int cols) {
+        matrixInputPanel.removeAll();
+        matrixInputPanel.setLayout(new GridLayout(rows, cols));
+        matrixFields = new JTextField[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                matrixFields[i][j] = new JTextField(2);
+                matrixInputPanel.add(matrixFields[i][j]);
+            }
+        }
+        matrixInputPanel.revalidate();
+        matrixInputPanel.repaint();
+    }
+
+    private void fillMatrixRandomly(int rows, int cols) {
+        Random rand = new Random();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                matrixFields[i][j].setText(String.valueOf(rand.nextInt(26))); // 0 - 25
+            }
+        }
+    }
+    private void saveMatrixToFile() {
+        if (matrixFields == null) return;
+
+        int rows = matrixFields.length;
+        int cols = matrixFields[0].length;
+        try {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showSaveDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                java.io.File file = fileChooser.getSelectedFile();
+                try (java.io.PrintWriter writer = new java.io.PrintWriter(file)) {
+                    writer.println(rows + " " + cols);
+                    for (int i = 0; i < rows; i++) {
+                        for (int j = 0; j < cols; j++) {
+                            writer.print(matrixFields[i][j].getText() + " ");
+                        }
+                        writer.println();
+                    }
+                }
+                JOptionPane.showMessageDialog(this, "Lưu ma trận thành công!");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi lưu ma trận: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
