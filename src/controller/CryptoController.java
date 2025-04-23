@@ -3,6 +3,7 @@ package controller;
 
 //import model.*;
 import model.CaesarCipher;
+import model.SubstitutionCipher;
 import model.VigenereCipher;
 import view.CryptoView;
 
@@ -10,6 +11,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class CryptoController {
     private final CryptoView view;
@@ -29,13 +33,28 @@ public class CryptoController {
         if (algo.contains("Caesar")) {
             int shift = rand.nextInt(25) + 1;
             view.keyField.setText(String.valueOf(shift));
-        } else if (algo.contains("Vigenere") || algo.contains("Substitution")) {
+        } else if (algo.contains("Vigenere")) {
             StringBuilder key = new StringBuilder();
             for (int i = 0; i < 8; i++) {
                 key.append((char) (rand.nextInt(26) + 'a'));
             }
             view.keyField.setText(key.toString());
-        } else if (algo.contains("Affine")) {
+        }else if (algo.contains("Substitution")) {
+            String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
+            List<Character> charList = new ArrayList<>();
+            for (char c : characters.toCharArray()) {
+                charList.add(c);
+            }
+            Collections.shuffle(charList);
+            StringBuilder key = new StringBuilder();
+            // Lấy một chuỗi dài hơn, ví dụ 64 ký tự
+            for (int i = 0; i < 64; i++) {
+                key.append(charList.get(i));
+            }
+            view.keyField.setText(key.toString());
+        }
+
+        else if (algo.contains("Affine")) {
             int[] aOptions = {1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25};
             int a = aOptions[rand.nextInt(aOptions.length)];
             int b = rand.nextInt(26);
@@ -43,6 +62,7 @@ public class CryptoController {
         } else if (algo.contains("Hill")) {
             view.keyField.setText("3,3,2,5");
         }
+
     }
 
     private void handleEncrypt() {
@@ -60,12 +80,19 @@ public class CryptoController {
                     int shift = Integer.parseInt(key);
                     view.outputArea.setText(CaesarCipher.encrypt(text, shift));
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(view, "Chỉ có thể nhập SỐ", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(view, "Key chỉ có thể nhập SỐ", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
             else if (algo.contains("Vigenere")) {
                 view.outputArea.setText(VigenereCipher.encrypt(text, key));
-            } else {
+            }else if (algo.contains("Substitution")) {
+                if (key.length() != 26) {
+                    JOptionPane.showMessageDialog(view, "Key phải có đúng 26 ký tự", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                view.outputArea.setText(SubstitutionCipher.encrypt(text, key));
+            }
+            else {
                 view.outputArea.setText("Chưa hỗ trợ thuật toán này");
             }
         } catch (Exception e) {

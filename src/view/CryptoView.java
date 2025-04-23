@@ -8,7 +8,7 @@ public class CryptoView extends JFrame {
     public JTabbedPane tabbedPane;
     public JPanel traditionalPanel;
     public JComboBox<String> algorithmCombo;
-    public JTextField keyField;
+    public JTextArea keyField;
     public JTextArea inputArea, outputArea;
     public JButton encryptButton, decryptButton, generateKeyButton;
 
@@ -25,14 +25,17 @@ public class CryptoView extends JFrame {
 
         JPanel configPanel = new JPanel(new FlowLayout());
         algorithmCombo = new JComboBox<>(new String[]{"Caesar(dịch chuyển)", "Vigenere", "Substitution", "Affine", "Hill"});
-        keyField = new JTextField("", 10);
+        keyField = new JTextArea(4, 25);  // 4 dòng, 25 cột
+        keyField.setLineWrap(true);
+        keyField.setWrapStyleWord(true);
+        JScrollPane keyScrollPane = new JScrollPane(keyField);
         generateKeyButton = new JButton("Tạo Key");
         JButton chooseKeyButton = new JButton("Chọn Key");
 
         configPanel.add(new JLabel("Chọn thuật toán:"));
         configPanel.add(algorithmCombo);
         configPanel.add(new JLabel("Nhập key hoặc tạo Key:"));
-        configPanel.add(keyField);
+        configPanel.add(keyScrollPane);
         configPanel.add(generateKeyButton);
         configPanel.add(chooseKeyButton);
 
