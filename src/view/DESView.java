@@ -16,7 +16,16 @@ public class DESView extends JPanel {
         // Top config: thuật toán và mode
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.add(new JLabel("Chọn Mode:"));
-        modeCombo = new JComboBox<>(new String[]{"CBC/PKCS5Padding", "ECB/PKCS5Padding"});
+        modeCombo = new JComboBox<>(new String[]{ "ECB/NoPadding",
+                "ECB/PKCS5Padding",
+                "OFB/PKCS7Padding","CFB/PKCS7Padding","CBC/PKCS7Padding","ECB/PKCS7Padding",
+                "CBC/NoPadding",
+                "CBC/PKCS5Padding",
+                "CFB/NoPadding",
+                "CFB/PKCS5Padding",
+                "OFB/NoPadding",
+                "OFB/PKCS5Padding",
+                "CTR/NoPadding"});
         modeCombo.setPreferredSize(new Dimension(150, 25));
         topPanel.add(modeCombo);
 

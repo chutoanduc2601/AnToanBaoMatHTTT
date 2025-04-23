@@ -8,7 +8,8 @@ import java.awt.event.ActionListener;
 import java.util.Random;
 import view.DESView; // nếu DESView nằm trong package view
 import  view.AESView;
-
+import controller.DESController;
+import model.DESModel;
 public class CryptoView extends JFrame {
     public JTabbedPane tabbedPane;
     public JPanel traditionalPanel;
@@ -33,6 +34,7 @@ public class CryptoView extends JFrame {
     public JTextField[][] matrixFields;
 
     public DESView desView;
+
     public AESView aesView;
     private JPanel cryptoCardPanel;
     private CardLayout cardLayout;
@@ -61,6 +63,8 @@ public class CryptoView extends JFrame {
         cardLayout = new CardLayout();
         cryptoCardPanel = new JPanel(cardLayout);
         desView = new DESView();
+        new DESController(new DESModel(), desView);
+
         aesView = new AESView();
         cryptoCardPanel.add(desView, "DES");
         cryptoCardPanel.add(aesView, "AES");
