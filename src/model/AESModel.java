@@ -6,6 +6,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.SecureRandom;
 import java.util.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import java.security.Security;
 
 public class AESModel {
     private SecretKey secretKey;
@@ -49,7 +51,12 @@ public class AESModel {
     }
 
     private Cipher createCipher(int mode, String modePadding) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES/" + modePadding);
+        // Đảm bảo BouncyCastle được đăng ký nếu chưa có
+        if (Security.getProvider("BC") == null) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
+
+        Cipher cipher = Cipher.getInstance("AES/" + modePadding, "BC");
         if (modePadding.startsWith("ECB")) {
             cipher.init(mode, secretKey);
         } else {

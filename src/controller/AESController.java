@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import java.security.Security;
 
 public class AESController {
     private final AESModel model;

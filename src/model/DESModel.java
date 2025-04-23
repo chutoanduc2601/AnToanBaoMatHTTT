@@ -6,6 +6,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.SecureRandom;
 import java.util.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import java.security.Security;
+
 
 public class DESModel {
     private SecretKey secretKey;
@@ -49,9 +52,11 @@ public class DESModel {
     }
 
     private Cipher createCipher(int mode, String modePadding) throws Exception {
-        String transformation = "DES/" + modePadding;
-        Cipher cipher = Cipher.getInstance(transformation);
+        if (Security.getProvider("BC") == null) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
 
+        Cipher cipher = Cipher.getInstance("DES/" + modePadding, "BC");
         if (modePadding.startsWith("ECB")) {
             cipher.init(mode, secretKey);
         } else {
@@ -60,6 +65,7 @@ public class DESModel {
         }
         return cipher;
     }
+
 
     private void processFile(Cipher cipher, File in, File out) throws Exception {
         try (FileInputStream fis = new FileInputStream(in);
