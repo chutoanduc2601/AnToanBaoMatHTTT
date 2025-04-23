@@ -6,6 +6,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
+
+import controller.AESController;
+import model.AESModel;
 import view.DESView; // nếu DESView nằm trong package view
 import  view.AESView;
 import controller.DESController;
@@ -66,6 +69,8 @@ public class CryptoView extends JFrame {
         new DESController(new DESModel(), desView);
 
         aesView = new AESView();
+        new AESController(new AESModel(), aesView);
+
         cryptoCardPanel.add(desView, "DES");
         cryptoCardPanel.add(aesView, "AES");
         symmetricPanel.add(cryptoCardPanel, BorderLayout.CENTER);

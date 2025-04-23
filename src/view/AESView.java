@@ -16,7 +16,9 @@ public class AESView extends JPanel {
         // Top config: thuật toán và mode
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.add(new JLabel("Chọn Mode:"));
-        modeCombo = new JComboBox<>(new String[]{"CBC/PKCS5Padding", "ECB/PKCS5Padding"});
+        modeCombo = new JComboBox<>(new String[]{"ECB/PKCS5Padding", "ECB/NoPadding","OFB/PKCS7Padding",
+                "CFB/PKCS7Padding","CBC/PKCS7Padding","ECB/PKCS7Padding","CBC/NoPadding","CBC/PKCS5Padding",
+                "CFB/NoPadding","OFB/NoPadding","CTR/NoPadding"});
         modeCombo.setPreferredSize(new Dimension(150, 25));
         topPanel.add(modeCombo);
 
