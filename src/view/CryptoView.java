@@ -6,6 +6,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
+import view.DESView; // nếu DESView nằm trong package view
 
 public class CryptoView extends JFrame {
     public JTabbedPane tabbedPane;
@@ -30,6 +31,8 @@ public class CryptoView extends JFrame {
     JPanel matrixInputPanel;
     public JTextField[][] matrixFields;
 
+    public DESView desView;
+
     public CryptoView() {
         setTitle("Ứng dụng Mã hóa/Giải mã");
         setSize(900, 500);
@@ -39,6 +42,8 @@ public class CryptoView extends JFrame {
         tabbedPane = new JTabbedPane();
         traditionalPanel = new JPanel(new BorderLayout());
         symmetricPanel = new JPanel(new BorderLayout());
+        desView = new DESView();
+        symmetricPanel.add(desView, BorderLayout.CENTER);
         asymmetric = new JPanel(new BorderLayout());
         hashPanel = new JPanel(new BorderLayout());
 
