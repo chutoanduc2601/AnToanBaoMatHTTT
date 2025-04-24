@@ -9,13 +9,15 @@ import java.util.Random;
 
 import controller.RSAController;
 import model.RSAModel;
-import view.RSAView;
 import controller.AESController;
 import model.AESModel;
-import view.DESView; // nếu DESView nằm trong package view
-import  view.AESView;
 import controller.DESController;
 import model.DESModel;
+
+import view.HashView;
+import controller.HashController;
+import model.HashModel;
+
 public class CryptoView extends JFrame {
     public JTabbedPane tabbedPane;
     public JPanel traditionalPanel;
@@ -81,7 +83,11 @@ public class CryptoView extends JFrame {
         RSAView rsaView = new RSAView();
         new RSAController(new RSAModel(), rsaView);
         asymmetric.add(rsaView, BorderLayout.CENTER);
+        HashView md5View = new HashView();
+        new HashController(md5View, new HashModel());
         hashPanel = new JPanel(new BorderLayout());
+        hashPanel.add(md5View, BorderLayout.CENTER);
+
 
         tabbedPane.addTab("Mã hóa truyền thống", traditionalPanel);
         tabbedPane.addTab("Mã hóa đối xứng", symmetricPanel);
