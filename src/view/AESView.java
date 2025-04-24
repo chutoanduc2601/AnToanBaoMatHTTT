@@ -92,7 +92,7 @@ public class AESView extends JPanel {
         outputArea.setEditable(false);
         outputPanel.add(new JScrollPane(outputArea), BorderLayout.CENTER);
 
-        viewOutputButton = new JButton("xem file output");
+        viewOutputButton = new JButton("Xem file output");
         JPanel outputButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         outputButtons.add(viewOutputButton);
         outputPanel.add(outputButtons, BorderLayout.SOUTH);

@@ -48,7 +48,7 @@ public class RSAView extends JPanel {
         ));
 
         JPanel keyGenPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        keyLengthCombo = new JComboBox<>(new String[]{"512", "1024", "2048", "3072", "4096"});
+        keyLengthCombo = new JComboBox<>(new String[]{"512", "1024", "2048", "3072", "4096","8192"});
         generateKeyButton = new JButton("Tạo cặp Key");
         keyGenPanel.add(new JLabel("Chọn độ dài key:"));
         keyGenPanel.add(keyLengthCombo);
@@ -108,7 +108,7 @@ public class RSAView extends JPanel {
 
         JPanel outputTop = new JPanel(new FlowLayout(FlowLayout.LEFT));
         outputTop.add(new JLabel("Output:"));
-        viewOutputButton = new JButton("xem file output");
+        viewOutputButton = new JButton("Xem file output");
         outputTop.add(viewOutputButton);
 
         outputArea = new JTextArea(6, 30);
