@@ -22,6 +22,7 @@ public class RSAView extends JPanel {
 
         // Panel trên cùng chọn thuật toán và padding
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         algorithmCombo = new JComboBox<>(new String[]{"RSA"});
         paddingCombo = new JComboBox<>(new String[]{
                 "ECB/PKCS1Padding",
@@ -36,12 +37,15 @@ public class RSAView extends JPanel {
         add(topPanel, BorderLayout.NORTH);
 
         // ==== PANEL CHỨA HAI KHỐI CHÍNH ====
-        JPanel mainPanel = new JPanel(new GridLayout(1, 2));
+        JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 0));
 
         // ==== PANEL BÊN TRÁI: Chọn khóa ====
         JPanel keyPanel = new JPanel();
         keyPanel.setLayout(new BoxLayout(keyPanel, BoxLayout.Y_AXIS));
-        keyPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED), "Chọn khóa"));
+        keyPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED), "Chọn khóa"),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
         JPanel keyGenPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         keyLengthCombo = new JComboBox<>(new String[]{"512", "1024", "2048", "3072", "4096"});
@@ -50,53 +54,56 @@ public class RSAView extends JPanel {
         keyGenPanel.add(keyLengthCombo);
         keyGenPanel.add(generateKeyButton);
 
-        JPanel pubKeyTop = new JPanel(new GridLayout(1, 3));
-        uploadPubFileButton = new JButton("Chọn File");
-        choosePubKeyButton = new JButton("Chọn khóa");
-        savePubKeyButton = new JButton("Lưu");
-        pubKeyTop.add(uploadPubFileButton);
-        pubKeyTop.add(choosePubKeyButton);
-        pubKeyTop.add(savePubKeyButton);
-
-        publicKeyArea = new JTextArea(4, 40);
+        publicKeyArea = new JTextArea(5, 30);
         publicKeyArea.setLineWrap(true);
         JScrollPane pubScroll = new JScrollPane(publicKeyArea);
 
-        JPanel privKeyTop = new JPanel(new GridLayout(1, 3));
-        uploadPrivFileButton = new JButton("Chọn File");
-        choosePrivKeyButton = new JButton("Chọn khóa");
-        savePrivKeyButton = new JButton("Lưu");
-        privKeyTop.add(uploadPrivFileButton);
-        privKeyTop.add(choosePrivKeyButton);
-        privKeyTop.add(savePrivKeyButton);
-
-        privateKeyArea = new JTextArea(4, 40);
+        privateKeyArea = new JTextArea(5, 30);
         privateKeyArea.setLineWrap(true);
         JScrollPane privScroll = new JScrollPane(privateKeyArea);
 
+        JPanel pubKeyLabelAndButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        uploadPubFileButton = new JButton("Chọn File");
+        choosePubKeyButton = new JButton("Chọn khóa");
+        savePubKeyButton = new JButton("Lưu");
+        pubKeyLabelAndButtons.add(new JLabel("Khóa public:"));
+        pubKeyLabelAndButtons.add(uploadPubFileButton);
+        pubKeyLabelAndButtons.add(choosePubKeyButton);
+        pubKeyLabelAndButtons.add(savePubKeyButton);
+
+        JPanel privKeyLabelAndButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        uploadPrivFileButton = new JButton("Chọn File");
+        choosePrivKeyButton = new JButton("Chọn khóa");
+        savePrivKeyButton = new JButton("Lưu");
+        privKeyLabelAndButtons.add(new JLabel("Khóa private:"));
+        privKeyLabelAndButtons.add(uploadPrivFileButton);
+        privKeyLabelAndButtons.add(choosePrivKeyButton);
+        privKeyLabelAndButtons.add(savePrivKeyButton);
+
         keyPanel.add(keyGenPanel);
-        keyPanel.add(new JLabel("Khóa public:"));
-        keyPanel.add(pubKeyTop);
+        keyPanel.add(pubKeyLabelAndButtons);
         keyPanel.add(pubScroll);
-        keyPanel.add(new JLabel("Khóa private:"));
-        keyPanel.add(privKeyTop);
+        keyPanel.add(privKeyLabelAndButtons);
         keyPanel.add(privScroll);
 
         // ==== PANEL BÊN PHẢI: Mã hóa/Giải mã ====
         JPanel cryptoPanel = new JPanel();
         cryptoPanel.setLayout(new BoxLayout(cryptoPanel, BoxLayout.Y_AXIS));
-        cryptoPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED), "Mã hóa/Giải mã"));
+        cryptoPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED), "Mã hóa/Giải mã"),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
         JPanel inputTop = new JPanel(new GridLayout(1, 4));
         inputTop.add(new JLabel("Input:"));
-        chooseInputFileButton = new JButton("Chọn File Input...");
+        chooseInputFileButton = new JButton("Chọn File");
         encryptButton = new JButton("Mã hóa");
         decryptButton = new JButton("Giải mã");
         inputTop.add(chooseInputFileButton);
         inputTop.add(encryptButton);
         inputTop.add(decryptButton);
 
-        inputArea = new JTextArea(4, 40);
+        inputArea = new JTextArea(6, 30);
         JScrollPane inputScroll = new JScrollPane(inputArea);
 
         JPanel outputTop = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -104,7 +111,7 @@ public class RSAView extends JPanel {
         viewOutputButton = new JButton("xem file output");
         outputTop.add(viewOutputButton);
 
-        outputArea = new JTextArea(4, 40);
+        outputArea = new JTextArea(6, 30);
         outputArea.setEditable(false);
         JScrollPane outputScroll = new JScrollPane(outputArea);
 
@@ -118,5 +125,4 @@ public class RSAView extends JPanel {
         mainPanel.add(cryptoPanel);
         add(mainPanel, BorderLayout.CENTER);
     }
-
 }
