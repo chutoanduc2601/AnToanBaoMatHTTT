@@ -7,6 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
+import controller.RSAController;
+import model.RSAModel;
+import view.RSAView;
 import controller.AESController;
 import model.AESModel;
 import view.DESView; // nếu DESView nằm trong package view
@@ -39,6 +42,7 @@ public class CryptoView extends JFrame {
     public DESView desView;
 
     public AESView aesView;
+    public RSAView rsaView;
     private JPanel cryptoCardPanel;
     private CardLayout cardLayout;
 
@@ -67,7 +71,6 @@ public class CryptoView extends JFrame {
         cryptoCardPanel = new JPanel(cardLayout);
         desView = new DESView();
         new DESController(new DESModel(), desView);
-
         aesView = new AESView();
         new AESController(new AESModel(), aesView);
 
@@ -75,6 +78,9 @@ public class CryptoView extends JFrame {
         cryptoCardPanel.add(aesView, "AES");
         symmetricPanel.add(cryptoCardPanel, BorderLayout.CENTER);
         asymmetric = new JPanel(new BorderLayout());
+        RSAView rsaView = new RSAView();
+        new RSAController(new RSAModel(), rsaView);
+        asymmetric.add(rsaView, BorderLayout.CENTER);
         hashPanel = new JPanel(new BorderLayout());
 
         tabbedPane.addTab("Mã hóa truyền thống", traditionalPanel);
