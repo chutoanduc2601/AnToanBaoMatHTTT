@@ -94,7 +94,7 @@ public class RSAView extends JPanel {
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
 
-        JPanel inputTop = new JPanel(new GridLayout(1, 4));
+        JPanel inputTop = new JPanel(new FlowLayout(FlowLayout.LEFT,10,0));
         inputTop.add(new JLabel("Input:"));
         chooseInputFileButton = new JButton("Chọn File");
         encryptButton = new JButton("Mã hóa");
