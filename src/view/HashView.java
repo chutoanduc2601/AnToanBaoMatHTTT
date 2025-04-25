@@ -58,8 +58,8 @@ public class HashView extends JPanel {
 
         // Bottom buttons inside input panel
         JPanel inputButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        hashButton = new JButton("Hash ->");
-        clearButton = new JButton("Clear X");
+        hashButton = new JButton("Hash");
+        clearButton = new JButton("Clear");
         inputButtonPanel.add(hashButton);
         inputButtonPanel.add(clearButton);
 

@@ -111,11 +111,9 @@ public class CryptoView extends JFrame {
         keyField.setWrapStyleWord(true);
         JScrollPane keyScrollPane = new JScrollPane(keyField);
         generateKeyButton = new JButton("Tạo Key");
-        JButton chooseKeyButton = new JButton("Chọn Key");
         keyPanel.add(new JLabel("Nhập key hoặc tạo Key:"));
         keyPanel.add(keyScrollPane);
         keyPanel.add(generateKeyButton);
-        keyPanel.add(chooseKeyButton);
 
         encryptButton = new JButton("Mã hóa");
         decryptButton = new JButton("Giải mã");
@@ -230,7 +228,6 @@ public class CryptoView extends JFrame {
             keyPanel.add(new JLabel("Nhập key hoặc tạo Key:"));
             keyPanel.add(new JScrollPane(keyField));
             keyPanel.add(generateKeyButton);
-            keyPanel.add(new JButton("Chọn Key"));
         }
 
         keyPanel.revalidate();
