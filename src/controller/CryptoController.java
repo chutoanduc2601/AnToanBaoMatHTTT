@@ -60,7 +60,9 @@ public class CryptoController {
             int b = rand.nextInt(26);
             view.keyField.setText(a + "," + b);
         } else if (algo.contains("Hill")) {
-            view.keyField.setText("3,3,2,5");
+            int size = 2; // mặc định sinh 2x2
+            view.generateMatrixFields(size, size);
+            view.fillMatrixRandomly(size, size);
         }
 
     }

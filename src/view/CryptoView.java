@@ -246,7 +246,7 @@ public class CryptoView extends JFrame {
 
 
 
-    private void generateMatrixFields(int rows, int cols) {
+    public void generateMatrixFields(int rows, int cols) {
         matrixInputPanel.removeAll();
         matrixInputPanel.setLayout(new GridLayout(rows, cols, 5, 5));
         matrixFields = new JTextField[rows][cols];
@@ -259,70 +259,29 @@ public class CryptoView extends JFrame {
         }
     }
 
-    private void fillMatrixRandomly(int rows, int cols) {
-        if (rows == 2 && cols == 2) {
-            // Ma trận 2x2 chuẩn Hill Cipher
-            matrixFields[0][0].setText("6");
-            matrixFields[0][1].setText("24");
-            matrixFields[1][0].setText("1");
-            matrixFields[1][1].setText("13");
-        } else if (rows == 3 && cols == 3) {
-            // Ma trận 3x3 chuẩn Hill Cipher
-            matrixFields[0][0].setText("2");
-            matrixFields[0][1].setText("4");
-            matrixFields[0][2].setText("5");
-            matrixFields[1][0].setText("9");
-            matrixFields[1][1].setText("2");
-            matrixFields[1][2].setText("1");
-            matrixFields[2][0].setText("3");
-            matrixFields[2][1].setText("17");
-            matrixFields[2][2].setText("7");
-        } else if (rows == 4 && cols == 4) {
-            // Ma trận 4x4 đơn giản, invertible
-            matrixFields[0][0].setText("3");
-            matrixFields[0][1].setText("10");
-            matrixFields[0][2].setText("20");
-            matrixFields[0][3].setText("20");
-            matrixFields[1][0].setText("20");
-            matrixFields[1][1].setText("9");
-            matrixFields[1][2].setText("17");
-            matrixFields[1][3].setText("5");
-            matrixFields[2][0].setText("9");
-            matrixFields[2][1].setText("4");
-            matrixFields[2][2].setText("17");
-            matrixFields[2][3].setText("6");
-            matrixFields[3][0].setText("5");
-            matrixFields[3][1].setText("1");
-            matrixFields[3][2].setText("9");
-            matrixFields[3][3].setText("2");
-        } else if (rows == 5 && cols == 5) {
-            // Ma trận 5x5 đơn giản, invertible
-            matrixFields[0][0].setText("1");
-            matrixFields[0][1].setText("0");
-            matrixFields[0][2].setText("0");
-            matrixFields[0][3].setText("0");
-            matrixFields[0][4].setText("1");
-            matrixFields[1][0].setText("0");
-            matrixFields[1][1].setText("1");
-            matrixFields[1][2].setText("0");
-            matrixFields[1][3].setText("1");
-            matrixFields[1][4].setText("0");
-            matrixFields[2][0].setText("0");
-            matrixFields[2][1].setText("0");
-            matrixFields[2][2].setText("1");
-            matrixFields[2][3].setText("1");
-            matrixFields[2][4].setText("0");
-            matrixFields[3][0].setText("1");
-            matrixFields[3][1].setText("1");
-            matrixFields[3][2].setText("1");
-            matrixFields[3][3].setText("1");
-            matrixFields[3][4].setText("1");
-            matrixFields[4][0].setText("0");
-            matrixFields[4][1].setText("1");
-            matrixFields[4][2].setText("1");
-            matrixFields[4][3].setText("1");
-            matrixFields[4][4].setText("0");
+    public void fillMatrixRandomly(int rows, int cols) {
+        Random rand = new Random();
+        do {
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    matrixFields[i][j].setText(String.valueOf(rand.nextInt(26)));
+                }
+            }
+        } while (!isMatrixInvertible(rows, cols));
+    }
+
+    private boolean isMatrixInvertible(int rows, int cols) {
+        int[][] matrix = new int[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                try {
+                    matrix[i][j] = Integer.parseInt(matrixFields[i][j].getText().trim());
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            }
         }
+        return model.HillCipher.isInvertible(matrix);
     }
 
 

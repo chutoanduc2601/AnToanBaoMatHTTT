@@ -48,11 +48,17 @@ public class HillCipher {
                 for (int col = 0; col < n; col++) {
                     sum = (sum + inverseMatrix[row][col] * vec[col]) % 26;
                 }
+                if (sum < 0) sum += 26; // tránh số âm
                 result.append((char) (sum + 'A'));
             }
         }
+        // === Xóa ký tự 'X' ở cuối nếu có ===
+        while (result.length() > 0 && result.charAt(result.length() - 1) == 'X') {
+            result.deleteCharAt(result.length() - 1);
+        }
         return result.toString();
     }
+
 
     public static boolean isInvertible(int[][] matrix) {
         if (matrix.length != matrix[0].length) return false;
@@ -68,18 +74,33 @@ public class HillCipher {
         int detInv = modInverse(det, 26);
         if (detInv == -1) return null;
 
-        int[][] adjugate = adjugate(matrix);
         int[][] inverse = new int[n][n];
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                inverse[i][j] = (detInv * adjugate[i][j]) % 26;
-                if (inverse[i][j] < 0) inverse[i][j] += 26;
+        if (n == 2) {
+            inverse[0][0] = matrix[1][1];
+            inverse[0][1] = -matrix[0][1];
+            inverse[1][0] = -matrix[1][0];
+            inverse[1][1] = matrix[0][0];
+
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 2; j++) {
+                    inverse[i][j] = (detInv * inverse[i][j]) % 26;
+                    if (inverse[i][j] < 0) inverse[i][j] += 26;
+                }
+            }
+        } else {
+            int[][] adjugate = adjugate(matrix);
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    inverse[i][j] = (detInv * adjugate[i][j]) % 26;
+                    if (inverse[i][j] < 0) inverse[i][j] += 26;
+                }
             }
         }
 
         return inverse;
     }
+
 
     private static int[][] adjugate(int[][] matrix) {
         int n = matrix.length;
