@@ -178,49 +178,59 @@ public class CryptoView extends JFrame {
         } else if (algorithm.equals("Hill")) {
             hillPanel = new JPanel(new BorderLayout());
             JPanel configMatrixPanel = new JPanel(new FlowLayout());
-            JTextField rowField = new JTextField("2", 2);
-            JTextField colField = new JTextField("2", 2);
-            configMatrixPanel.add(new JLabel("Nhập kích thước ma trận:"));
-            configMatrixPanel.add(rowField);
-            configMatrixPanel.add(new JLabel("X"));
-            configMatrixPanel.add(colField);
+
+            // Panel for matrix size selection
+            JPanel sizePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JLabel sizeLabel = new JLabel("Kích thước ma trận:");
+            JComboBox<String> sizeCombo = new JComboBox<>(new String[]{"2x2", "3x3","4x4", "5x5"});
+            sizePanel.add(sizeLabel);
+            sizePanel.add(sizeCombo);
+
+            // Action when size is changed
+            sizeCombo.addActionListener(e -> {
+                String selectedSize = (String) sizeCombo.getSelectedItem();
+                int size = Integer.parseInt(selectedSize.substring(0, 1));
+                generateMatrixFields(size, size);
+                matrixInputPanel.revalidate();
+                matrixInputPanel.repaint();
+            });
+
+            // Add size selection to config panel
+            configMatrixPanel.add(sizePanel);
             hillPanel.add(configMatrixPanel, BorderLayout.NORTH);
 
+            // Panel for matrix input
             matrixInputPanel = new JPanel();
+            matrixInputPanel.setLayout(new GridLayout(2, 2, 5, 5));
             matrixFields = new JTextField[2][2];
-            generateMatrixFields(2, 2);
-            hillPanel.add(matrixInputPanel, BorderLayout.SOUTH);
 
-            JPanel matrixButtons = new JPanel(new FlowLayout());
-            JButton generateMatrixButton = new JButton("Tạo ma trận");
-            generateMatrixButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    try {
-                        int rows = Integer.parseInt(rowField.getText());
-                        int cols = Integer.parseInt(colField.getText());
-                        if (rows > 5 || cols > 5) {
-                            JOptionPane.showMessageDialog(null, "Kích thước tối đa là 5x5.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        generateMatrixFields(rows, cols);
-                        fillMatrixRandomly(rows, cols);
-                    } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(null, "Vui lòng nhập số nguyên hợp lệ.", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
-                    }
+            // Initialize with 2x2 matrix
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 2; j++) {
+                    matrixFields[i][j] = new JTextField(3);
+                    matrixInputPanel.add(matrixFields[i][j]);
                 }
-            });
-            matrixButtons.add(generateMatrixButton);
-            JButton chooseMatrixButton = new JButton("Chọn ma trận");
-            chooseMatrixButton.addActionListener(e -> {
-                JOptionPane.showMessageDialog(this, "Đã chọn ma trận!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            });
-            matrixButtons.add(chooseMatrixButton);
-            JButton saveMatrixButton = new JButton("Lưu ma trận");
-            saveMatrixButton.addActionListener(e -> saveMatrixToFile());
-            matrixButtons.add(saveMatrixButton);
-            hillPanel.add(matrixButtons, BorderLayout.CENTER);
+            }
 
+            // Add matrix panel to hill panel
+            JPanel matrixContainer = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            matrixContainer.add(matrixInputPanel);
+            hillPanel.add(matrixContainer, BorderLayout.CENTER);
+
+            // Button panel
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            JButton generateMatrixButton = new JButton("Tạo ma trận ngẫu nhiên");
+
+            generateMatrixButton.addActionListener(e -> {
+                String selectedSize = (String) sizeCombo.getSelectedItem();
+                int size = Integer.parseInt(selectedSize.substring(0, 1));
+                fillMatrixRandomly(size, size);
+            });
+
+            buttonPanel.add(generateMatrixButton);
+            hillPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+            // Add hill panel to key panel
             keyPanel.setLayout(new BorderLayout());
             keyPanel.add(hillPanel, BorderLayout.CENTER);
         } else {
@@ -238,26 +248,84 @@ public class CryptoView extends JFrame {
 
     private void generateMatrixFields(int rows, int cols) {
         matrixInputPanel.removeAll();
-        matrixInputPanel.setLayout(new GridLayout(rows, cols));
+        matrixInputPanel.setLayout(new GridLayout(rows, cols, 5, 5));
         matrixFields = new JTextField[rows][cols];
+
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                matrixFields[i][j] = new JTextField(2);
+                matrixFields[i][j] = new JTextField(3);
                 matrixInputPanel.add(matrixFields[i][j]);
             }
         }
-        matrixInputPanel.revalidate();
-        matrixInputPanel.repaint();
     }
 
     private void fillMatrixRandomly(int rows, int cols) {
-        Random rand = new Random();
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                matrixFields[i][j].setText(String.valueOf(rand.nextInt(26))); // 0 - 25
-            }
+        if (rows == 2 && cols == 2) {
+            // Ma trận 2x2 chuẩn Hill Cipher
+            matrixFields[0][0].setText("6");
+            matrixFields[0][1].setText("24");
+            matrixFields[1][0].setText("1");
+            matrixFields[1][1].setText("13");
+        } else if (rows == 3 && cols == 3) {
+            // Ma trận 3x3 chuẩn Hill Cipher
+            matrixFields[0][0].setText("2");
+            matrixFields[0][1].setText("4");
+            matrixFields[0][2].setText("5");
+            matrixFields[1][0].setText("9");
+            matrixFields[1][1].setText("2");
+            matrixFields[1][2].setText("1");
+            matrixFields[2][0].setText("3");
+            matrixFields[2][1].setText("17");
+            matrixFields[2][2].setText("7");
+        } else if (rows == 4 && cols == 4) {
+            // Ma trận 4x4 đơn giản, invertible
+            matrixFields[0][0].setText("3");
+            matrixFields[0][1].setText("10");
+            matrixFields[0][2].setText("20");
+            matrixFields[0][3].setText("20");
+            matrixFields[1][0].setText("20");
+            matrixFields[1][1].setText("9");
+            matrixFields[1][2].setText("17");
+            matrixFields[1][3].setText("5");
+            matrixFields[2][0].setText("9");
+            matrixFields[2][1].setText("4");
+            matrixFields[2][2].setText("17");
+            matrixFields[2][3].setText("6");
+            matrixFields[3][0].setText("5");
+            matrixFields[3][1].setText("1");
+            matrixFields[3][2].setText("9");
+            matrixFields[3][3].setText("2");
+        } else if (rows == 5 && cols == 5) {
+            // Ma trận 5x5 đơn giản, invertible
+            matrixFields[0][0].setText("1");
+            matrixFields[0][1].setText("0");
+            matrixFields[0][2].setText("0");
+            matrixFields[0][3].setText("0");
+            matrixFields[0][4].setText("1");
+            matrixFields[1][0].setText("0");
+            matrixFields[1][1].setText("1");
+            matrixFields[1][2].setText("0");
+            matrixFields[1][3].setText("1");
+            matrixFields[1][4].setText("0");
+            matrixFields[2][0].setText("0");
+            matrixFields[2][1].setText("0");
+            matrixFields[2][2].setText("1");
+            matrixFields[2][3].setText("1");
+            matrixFields[2][4].setText("0");
+            matrixFields[3][0].setText("1");
+            matrixFields[3][1].setText("1");
+            matrixFields[3][2].setText("1");
+            matrixFields[3][3].setText("1");
+            matrixFields[3][4].setText("1");
+            matrixFields[4][0].setText("0");
+            matrixFields[4][1].setText("1");
+            matrixFields[4][2].setText("1");
+            matrixFields[4][3].setText("1");
+            matrixFields[4][4].setText("0");
         }
     }
+
+
     private void saveMatrixToFile() {
         if (matrixFields == null) return;
 

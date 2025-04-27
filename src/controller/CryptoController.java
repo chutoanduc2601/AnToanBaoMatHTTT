@@ -2,6 +2,7 @@
 package controller;
 
 //import model.*;
+
 import model.CaesarCipher;
 import model.HillCipher;
 import model.SubstitutionCipher;
@@ -42,22 +43,18 @@ public class CryptoController {
                 key.append((char) (rand.nextInt(26) + 'a'));
             }
             view.keyField.setText(key.toString());
-        }else if (algo.contains("Substitution")) {
-            String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
-            List<Character> charList = new ArrayList<>();
-            for (char c : characters.toCharArray()) {
-                charList.add(c);
+        } else if (algo.contains("Substitution")) {
+            List<Character> alphabet = new ArrayList<>();
+            for (char c = 'A'; c <= 'Z'; c++) {
+                alphabet.add(c);
             }
-            Collections.shuffle(charList);
+            Collections.shuffle(alphabet, new SecureRandom());
             StringBuilder key = new StringBuilder();
-            // Lấy một chuỗi dài hơn, ví dụ 64 ký tự
-            for (int i = 0; i < 64; i++) {
-                key.append(charList.get(i));
+            for (char c : alphabet) {
+                key.append(c);
             }
             view.keyField.setText(key.toString());
-        }
-
-        else if (algo.contains("Affine")) {
+        } else if (algo.contains("Affine")) {
             int[] aOptions = {1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25};
             int a = aOptions[rand.nextInt(aOptions.length)];
             int b = rand.nextInt(26);
@@ -85,32 +82,62 @@ public class CryptoController {
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(view, "Key chỉ có thể nhập SỐ", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
-            }
-            else if (algo.contains("Vigenere")) {
+            } else if (algo.contains("Vigenere")) {
+                if (key.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(view, "Key rỗng", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 view.outputArea.setText(VigenereCipher.encrypt(text, key));
-            }else if (algo.contains("Substitution")) {
+            } else if (algo.contains("Substitution")) {
+                if (key.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(view, "Key rỗng", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 if (key.length() != 26) {
                     JOptionPane.showMessageDialog(view, "Key phải có đúng 26 ký tự", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 view.outputArea.setText(SubstitutionCipher.encrypt(text, key));
-            }else if (algo.contains("Affine")) {
+            } else if (algo.contains("Affine")) {
                 try {
+                    if (view.keyAField.getText().trim().isEmpty() || view.keyBField.getText().trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(view, "Key A và Key B không được rỗng", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                     int a = Integer.parseInt(view.keyAField.getText().trim());
                     int b = Integer.parseInt(view.keyBField.getText().trim());
                     view.outputArea.setText(AffineCipher.encrypt(text, a, b));
+
+
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(view, "Key Affine không hợp lệ. Định dạng key phải là Số N guyên", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
-            }
-            else if (algo.contains("Hill")) {
-                int size = view.matrixFields.length;
-                int[][] matrix = new int[size][size];
-
+            } else if (algo.contains("Hill")) {
                 try {
+                    // Get matrix size
+                    int size = 0;
+                    for (int i = 0; i < view.matrixFields.length; i++) {
+                        if (view.matrixFields[i] != null) {
+                            size = view.matrixFields[i].length;
+                            break;
+                        }
+                    }
+
+                    if (size == 0) {
+                        JOptionPane.showMessageDialog(view, "Vui lòng nhập ma trận", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    int[][] matrix = new int[size][size];
+
+                    // Fill matrix from UI fields
                     for (int i = 0; i < size; i++) {
                         for (int j = 0; j < size; j++) {
-                            matrix[i][j] = Integer.parseInt(view.matrixFields[i][j].getText());
+                            if (view.matrixFields[i][j].getText().trim().isEmpty()) {
+                                JOptionPane.showMessageDialog(view, "Ma trận không được để trống", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                            matrix[i][j] = Integer.parseInt(view.matrixFields[i][j].getText().trim());
                         }
                     }
 
@@ -121,13 +148,12 @@ public class CryptoController {
 
                     String result = HillCipher.encrypt(view.inputArea.getText(), matrix);
                     view.outputArea.setText(result);
-
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(view, "Lỗi định dạng ma trận!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(view, "Lỗi định dạng ma trận! Vui lòng chỉ nhập số nguyên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(view, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
-            }
-
-            else {
+            } else {
                 view.outputArea.setText("Chưa hỗ trợ thuật toán này");
             }
         } catch (Exception e) {
@@ -137,7 +163,10 @@ public class CryptoController {
 
     private void handleDecrypt() {
         String algo = (String) view.algorithmCombo.getSelectedItem();
-        String text = view.inputArea.getText();
+        String text = view.outputArea.getText().trim();
+        if (text.isEmpty()) {
+            text = view.inputArea.getText().trim();
+        }
         String key = view.keyField.getText();
 
         try {
@@ -152,22 +181,78 @@ public class CryptoController {
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(view, "Chỉ có thể nhập SỐ", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
-            }
-            else if (algo.contains("Vigenere")) {
+            } else if (algo.contains("Vigenere")) {
                 view.outputArea.setText(VigenereCipher.decrypt(text, key));
-            }else if (algo.contains("Affine")) {
+            } else if (algo.contains("Substitution")) {
+                if (key.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(view, "Key rỗng", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (key.length() != 26) {
+                    JOptionPane.showMessageDialog(view, "Key phải có đúng 26 ký tự", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                view.outputArea.setText(SubstitutionCipher.decrypt(text, key));
+            } else if (algo.contains("Affine")) {
                 try {
+                    if (view.keyAField.getText().trim().isEmpty() || view.keyBField.getText().trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(view, "Key A và Key B không được rỗng", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                     int a = Integer.parseInt(view.keyAField.getText().trim());
                     int b = Integer.parseInt(view.keyBField.getText().trim());
                     view.outputArea.setText(AffineCipher.decrypt(text, a, b));
+
+
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(view, "Key Affine không hợp lệ. Đảm bảo a,b là số nguyên và a nguyên tố cùng nhau với 26", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
+            }else if (algo.contains("Hill")) {
+                try {
+                    // Get matrix size
+                    int size = 0;
+                    for (int i = 0; i < view.matrixFields.length; i++) {
+                        if (view.matrixFields[i] != null) {
+                            size = view.matrixFields[i].length;
+                            break;
+                        }
+                    }
+
+                    if (size == 0) {
+                        JOptionPane.showMessageDialog(view, "Vui lòng nhập ma trận", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    int[][] matrix = new int[size][size];
+
+                    // Fill matrix from UI fields
+                    for (int i = 0; i < size; i++) {
+                        for (int j = 0; j < size; j++) {
+                            if (view.matrixFields[i][j].getText().trim().isEmpty()) {
+                                JOptionPane.showMessageDialog(view, "Ma trận không được để trống", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                            matrix[i][j] = Integer.parseInt(view.matrixFields[i][j].getText().trim());
+                        }
+                    }
+
+                    if (!HillCipher.isInvertible(matrix)) {
+                        JOptionPane.showMessageDialog(view, "Ma trận không khả nghịch (det không nguyên tố cùng nhau với 26)", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    int[][] inverseMatrix = HillCipher.invert(matrix);
+                    String result = HillCipher.decrypt(text, inverseMatrix);
+
+
+                    view.outputArea.setText(result);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(view, "Lỗi định dạng ma trận! Vui lòng chỉ nhập số nguyên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(view, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
             }
-            else {
-                view.outputArea.setText("Chưa hỗ trợ thuật toán này");
-            }
-        } catch (Exception e) {
+            } catch (Exception e) {
             view.outputArea.setText("Lỗi giải mã: " + e.getMessage());
         }
     }
