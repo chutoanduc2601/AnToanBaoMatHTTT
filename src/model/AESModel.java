@@ -59,6 +59,10 @@ public class AESModel {
         Cipher cipher = Cipher.getInstance("AES/" + modePadding, "BC");
         if (modePadding.startsWith("ECB")) {
             cipher.init(mode, secretKey);
+        } else if (modePadding.startsWith("GCM")) {
+            if (iv == null) generateIV();
+            javax.crypto.spec.GCMParameterSpec gcmSpec = new javax.crypto.spec.GCMParameterSpec(128, iv.getIV());
+            cipher.init(mode, secretKey, gcmSpec);
         } else {
             if (iv == null) generateIV();
             cipher.init(mode, secretKey, iv);

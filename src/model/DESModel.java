@@ -56,7 +56,10 @@ public class DESModel {
             Security.addProvider(new BouncyCastleProvider());
         }
 
-        Cipher cipher = Cipher.getInstance("DES/" + modePadding, "BC");
+        // Nếu modePadding là PKCS7Padding thì dùng Provider BouncyCastle
+        String transformation = "DES/" + modePadding;
+        Cipher cipher = Cipher.getInstance(transformation, "BC");
+
         if (modePadding.startsWith("ECB")) {
             cipher.init(mode, secretKey);
         } else {
@@ -65,6 +68,7 @@ public class DESModel {
         }
         return cipher;
     }
+
 
 
     private void processFile(Cipher cipher, File in, File out) throws Exception {
