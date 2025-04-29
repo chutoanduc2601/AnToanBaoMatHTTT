@@ -51,21 +51,20 @@ public class DESController {
 
     private void generateKey(ActionEvent e) {
         try {
-            model.generateKey();
-            try {
-                model.generateKey();
-                String base64Key = Base64.getEncoder().encodeToString(model.getSecretKey().getEncoded());
-                view.keyArea.setText(base64Key);
-            } catch (Exception ex) {
-                showError("Lỗi tạo key: " + ex.getMessage());
-            }
-
+            model.generateKey(); // chỉ gọi MỘT lần
+            String base64Key = Base64.getEncoder().encodeToString(model.getSecretKey().getEncoded());
+            view.keyArea.setText(base64Key);
         } catch (Exception ex) {
             showError("Lỗi tạo key: " + ex.getMessage());
         }
     }
 
+
     private void chooseKey(ActionEvent e) {
+        if (model.getSecretKey() == null) {
+            showError("Chưa có khóa! Vui lòng tạo hoặc chọn khóa trước.");
+            return;
+        }
         JOptionPane.showMessageDialog(view, "Key đã được chọn và sẵn sàng.");
     }
 
@@ -91,6 +90,10 @@ public class DESController {
     }
 
     private void encryptFile(ActionEvent e) {
+        if (model.getSecretKey() == null) {
+            showError("Chưa có khóa! Vui lòng tạo hoặc chọn khóa trước.");
+            return;
+        }
         if (selectedInputFile == null) {
             showError("Chưa chọn file input.");
             return;

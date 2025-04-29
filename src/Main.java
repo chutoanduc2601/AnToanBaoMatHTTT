@@ -1,4 +1,4 @@
-// === Main.java ===
+
 import controller.CryptoController;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import view.CryptoView;

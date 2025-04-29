@@ -1,16 +1,11 @@
-// === CryptoController.java ===
 package controller;
-
-//import model.*;
-
 import model.CaesarCipher;
 import model.HillCipher;
 import model.SubstitutionCipher;
 import model.VigenereCipher;
 import model.AffineCipher;
 import view.CryptoView;
-
-
+import model.PermutationCipher;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,7 +19,6 @@ public class CryptoController {
 
     public CryptoController(CryptoView view) {
         this.view = view;
-
         view.encryptButton.addActionListener(e -> handleEncrypt());
         view.decryptButton.addActionListener(e -> handleDecrypt());
         view.generateKeyButton.addActionListener(e -> generateKey());
@@ -63,6 +57,20 @@ public class CryptoController {
             int size = 2; // mặc định sinh 2x2
             view.generateMatrixFields(size, size);
             view.fillMatrixRandomly(size, size);
+        }
+        else if (algo.contains("Hoan vi")) {
+            int size = 4; // Mặc định 4 phần tử
+            List<Integer> permutation = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                permutation.add(i);
+            }
+            Collections.shuffle(permutation);
+            StringBuilder key = new StringBuilder();
+            for (int num : permutation) {
+                key.append(num).append(",");
+            }
+            key.deleteCharAt(key.length() - 1); // Bỏ dấu "," cuối
+            view.keyField.setText(key.toString());
         }
 
     }
@@ -132,7 +140,6 @@ public class CryptoController {
 
                     int[][] matrix = new int[size][size];
 
-                    // Fill matrix from UI fields
                     for (int i = 0; i < size; i++) {
                         for (int j = 0; j < size; j++) {
                             if (view.matrixFields[i][j].getText().trim().isEmpty()) {
@@ -155,7 +162,16 @@ public class CryptoController {
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(view, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
-            } else {
+            }else if (algo.contains("Hoan vi")) {
+                if (key.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(view, "Key rỗng", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                int[] permutation = parsePermutationKey(key);
+                view.outputArea.setText(PermutationCipher.encrypt(text, permutation));
+            }
+
+            else {
                 view.outputArea.setText("Chưa hỗ trợ thuật toán này");
             }
         } catch (Exception e) {
@@ -166,9 +182,9 @@ public class CryptoController {
     private void handleDecrypt() {
         String algo = (String) view.algorithmCombo.getSelectedItem();
         String text = view.outputArea.getText().trim();
-        if (text.isEmpty()) {
-            text = view.inputArea.getText().trim();
-        }
+//        if (text.isEmpty()) {
+//            text = view.inputArea.getText().trim();
+//        }
         String key = view.keyField.getText();
 
         try {
@@ -253,9 +269,26 @@ public class CryptoController {
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(view, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
+            }else if (algo.contains("Hoan vi")) {
+                if (key.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(view, "Key rỗng", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                int[] permutation = parsePermutationKey(key);
+                view.outputArea.setText(PermutationCipher.decrypt(text, permutation));
             }
-            } catch (Exception e) {
+
+        } catch (Exception e) {
             view.outputArea.setText("Lỗi giải mã: " + e.getMessage());
         }
     }
+    private int[] parsePermutationKey(String key) {
+        String[] parts = key.split(",");
+        int[] permutation = new int[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            permutation[i] = Integer.parseInt(parts[i].trim());
+        }
+        return permutation;
+    }
 }
+

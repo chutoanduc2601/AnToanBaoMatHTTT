@@ -64,7 +64,7 @@ public class DESView extends JPanel {
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         chooseKeyButton = new JButton("Chọn khóa");
         saveKeyButton = new JButton("Lưu");
-        buttonRow.add(chooseKeyButton);
+//        buttonRow.add(chooseKeyButton);
         buttonRow.add(saveKeyButton);
         keyPanel.add(buttonRow);
 

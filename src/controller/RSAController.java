@@ -124,10 +124,11 @@ public class RSAController {
                 java.io.File outputFile = new java.io.File(lastInputFile.getParent(), "output_rsa.txt");
                 if (outputFile.exists()) {
                     try {
-                        String content = java.nio.file.Files.readString(outputFile.toPath());
-                        view.outputArea.setText(content);
+                        // Mở File Explorer và chọn file output
+                        String cmd = String.format("explorer.exe /select,\"%s\"", outputFile.getAbsolutePath());
+                        Runtime.getRuntime().exec(cmd);
                     } catch (Exception ex) {
-                        showError("Không đọc được file output: " + ex.getMessage());
+                        showError("Không thể mở File Explorer: " + ex.getMessage());
                     }
                 } else {
                     showError("Chưa có file output để hiển thị.");
@@ -136,6 +137,7 @@ public class RSAController {
                 showError("Chưa có file input được chọn.");
             }
         });
+
 
 
         // Giải mã

@@ -49,6 +49,7 @@ public class CryptoView extends JFrame {
     private CardLayout cardLayout;
 
 
+
     public CryptoView() {
         setTitle("Ứng dụng Mã hóa/Giải mã");
         setSize(900, 500);
@@ -59,7 +60,10 @@ public class CryptoView extends JFrame {
         traditionalPanel = new JPanel(new BorderLayout());
         symmetricPanel = new JPanel(new BorderLayout());
         JPanel algoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JComboBox<String> algorithmSelector = new JComboBox<>(new String[]{"DES", "AES"});
+        JComboBox<String> algorithmSelector = new JComboBox<>(new String[]{
+                "DES", "AES"
+        });
+
         algoPanel.add(new JLabel("Chọn thuật toán:"));
         algoPanel.add(algorithmSelector);
         symmetricPanel.add(algoPanel, BorderLayout.NORTH);
@@ -76,8 +80,10 @@ public class CryptoView extends JFrame {
         aesView = new AESView();
         new AESController(new AESModel(), aesView);
 
+
         cryptoCardPanel.add(desView, "DES");
         cryptoCardPanel.add(aesView, "AES");
+
         symmetricPanel.add(cryptoCardPanel, BorderLayout.CENTER);
         asymmetric = new JPanel(new BorderLayout());
         RSAView rsaView = new RSAView();
@@ -102,7 +108,7 @@ public class CryptoView extends JFrame {
         buttonPanel = new JPanel(new FlowLayout());
         hillPanel = new JPanel();
 
-        algorithmCombo = new JComboBox<>(new String[]{"Caesar(dịch chuyển)", "Vigenere", "Substitution", "Affine", "Hill"});
+        algorithmCombo = new JComboBox<>(new String[]{"Caesar(dịch chuyển)", "Vigenere", "Substitution", "Affine", "Hill" ,"Hoan vi"});
         algorithmPanel.add(new JLabel("Chọn thuật toán:"));
         algorithmPanel.add(algorithmCombo);
 
@@ -233,6 +239,15 @@ public class CryptoView extends JFrame {
             // Add hill panel to key panel
             keyPanel.setLayout(new BorderLayout());
             keyPanel.add(hillPanel, BorderLayout.CENTER);
+        }else if (algorithm.equals("Hoan vi")) {
+            keyPanel.setLayout(new FlowLayout());
+            keyField = new JTextArea(4, 25);
+            keyField.setLineWrap(true);
+            keyField.setWrapStyleWord(true);
+            JScrollPane keyScrollPane = new JScrollPane(keyField);
+            keyPanel.add(new JLabel("Nhập key hoán vị (ví dụ: 3,1,2,0):"));
+            keyPanel.add(keyScrollPane);
+            keyPanel.add(generateKeyButton);
         } else {
             keyPanel.setLayout(new FlowLayout());
             keyPanel.add(new JLabel("Nhập key hoặc tạo Key:"));
