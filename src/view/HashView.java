@@ -24,7 +24,7 @@ public class HashView extends JPanel {
         // === Top panel (Algorithm selection) ===
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel algoLabel = new JLabel("Chọn thuật toán:");
-        String[] algorithms = {"MD5", "SHA1", "SHA3", "SHA256", "SHA512","Ripemd160"};
+        String[] algorithms = {"MD5", "SHA-1", "SHA-256", "SHA-512", "SHA3-256", "SHA3-384","SHA3-512","RIPEMD-160"};
         algorithmComboBox = new JComboBox<>(algorithms);
         topPanel.add(algoLabel);
         topPanel.add(algorithmComboBox);

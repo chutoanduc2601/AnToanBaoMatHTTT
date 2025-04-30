@@ -1,14 +1,21 @@
 package controller;
 
 import model.DESModel;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import view.DESView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.security.Security;
 import java.util.Base64;
 
 public class DESController {
+    static {
+        // Xóa và thêm lại provider BC đúng cách
+        Security.removeProvider("BC");
+        Security.addProvider(new BouncyCastleProvider());
+    }
     private final DESModel model;
     private final DESView view;
     private File selectedKeyFile = null;

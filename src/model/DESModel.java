@@ -52,13 +52,18 @@ public class DESModel {
     }
 
     private Cipher createCipher(int mode, String modePadding) throws Exception {
-        if (Security.getProvider("BC") == null) {
-            Security.addProvider(new BouncyCastleProvider());
-        }
-
-        // Nếu modePadding là PKCS7Padding thì dùng Provider BouncyCastle
         String transformation = "DES/" + modePadding;
-        Cipher cipher = Cipher.getInstance(transformation, "BC");
+        Cipher cipher;
+
+        // Nếu là PKCS7, ép dùng BC, còn lại dùng mặc định của JVM
+        if (modePadding.endsWith("PKCS7Padding")) {
+            if (Security.getProvider("BC") == null) {
+                Security.addProvider(new BouncyCastleProvider());
+            }
+            cipher = Cipher.getInstance(transformation, "BC");
+        } else {
+            cipher = Cipher.getInstance(transformation);
+        }
 
         if (modePadding.startsWith("ECB")) {
             cipher.init(mode, secretKey);
@@ -66,8 +71,11 @@ public class DESModel {
             if (iv == null) generateIV();
             cipher.init(mode, secretKey, iv);
         }
+
         return cipher;
     }
+
+
 
 
 

@@ -28,7 +28,6 @@ public class RSAView extends JPanel {
                 "ECB/PKCS1Padding",
                 "ECB/OAEPWithSHA-256AndMGF1Padding",
                 "ECB/OAEPWithSHA-512AndMGF1Padding",
-                "ECB/PKCS1PSSPadding"
         });
         topPanel.add(new JLabel("Chọn thuật toán:"));
         topPanel.add(algorithmCombo);
@@ -68,7 +67,7 @@ public class RSAView extends JPanel {
         savePubKeyButton = new JButton("Lưu");
         pubKeyLabelAndButtons.add(new JLabel("Khóa public:"));
         pubKeyLabelAndButtons.add(uploadPubFileButton);
-        pubKeyLabelAndButtons.add(choosePubKeyButton);
+//        pubKeyLabelAndButtons.add(choosePubKeyButton);
         pubKeyLabelAndButtons.add(savePubKeyButton);
 
         JPanel privKeyLabelAndButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
@@ -77,7 +76,7 @@ public class RSAView extends JPanel {
         savePrivKeyButton = new JButton("Lưu");
         privKeyLabelAndButtons.add(new JLabel("Khóa private:"));
         privKeyLabelAndButtons.add(uploadPrivFileButton);
-        privKeyLabelAndButtons.add(choosePrivKeyButton);
+//        privKeyLabelAndButtons.add(choosePrivKeyButton);
         privKeyLabelAndButtons.add(savePrivKeyButton);
 
         keyPanel.add(keyGenPanel);

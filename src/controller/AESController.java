@@ -31,6 +31,11 @@ public class AESController {
         view.decryptButton.addActionListener(this::decryptFile);
         view.viewOutputButton.addActionListener(this::viewOutputFile);
     }
+    static {
+        // Xóa và thêm lại provider BC đúng cách
+        Security.removeProvider("BC");
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     private void chooseKeyFile(ActionEvent e) {
         JFileChooser chooser = new JFileChooser();

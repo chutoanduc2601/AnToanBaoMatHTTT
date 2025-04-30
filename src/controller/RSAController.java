@@ -1,27 +1,30 @@
+// RSAController.java
 package controller;
 
 import model.RSAModel;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import view.RSAView;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.File;
+import java.nio.file.Files;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Base64;
+import java.security.Security;
 
 public class RSAController {
     private RSAModel model;
     private RSAView view;
-    private java.io.File lastInputFile = null;
+    private File lastInputFile = null;
 
     public RSAController(RSAModel model, RSAView view) {
+        Security.removeProvider("BC");
+        Security.addProvider(new BouncyCastleProvider());
+
         this.model = model;
         this.view = view;
         setupFileChoosers();
 
-
-        // Tạo cặp key
         view.generateKeyButton.addActionListener(e -> {
             try {
                 int keySize = Integer.parseInt((String) view.keyLengthCombo.getSelectedItem());
@@ -33,7 +36,7 @@ public class RSAController {
                 showError("Lỗi khi tạo khóa: " + ex.getMessage());
             }
         });
-        // Kiểm tra khóa Public
+
         view.choosePubKeyButton.addActionListener(e -> {
             String pubKey = view.publicKeyArea.getText().trim();
             if (pubKey.isEmpty()) {
@@ -43,7 +46,6 @@ public class RSAController {
             }
         });
 
-// Kiểm tra khóa Private
         view.choosePrivKeyButton.addActionListener(e -> {
             String privKey = view.privateKeyArea.getText().trim();
             if (privKey.isEmpty()) {
@@ -52,79 +54,18 @@ public class RSAController {
                 JOptionPane.showMessageDialog(view, "Đã chọn khóa private!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             }
         });
-        // Lưu khóa Public
-        view.savePubKeyButton.addActionListener(e -> {
-            String pubKey = view.publicKeyArea.getText().trim();
-            if (pubKey.isEmpty()) {
-                showError("Không có khóa public để lưu!");
-                return;
-            }
 
-            JFileChooser fileChooser = new JFileChooser();
-            if (fileChooser.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
-                try (java.io.FileWriter writer = new java.io.FileWriter(fileChooser.getSelectedFile())) {
-                    writer.write(pubKey);
-                    JOptionPane.showMessageDialog(view, "Đã lưu khóa public thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                } catch (Exception ex) {
-                    showError("Lỗi khi lưu khóa public: " + ex.getMessage());
-                }
-            }
-        });
+        view.savePubKeyButton.addActionListener(e -> saveKey(view.publicKeyArea.getText().trim(), "public"));
+        view.savePrivKeyButton.addActionListener(e -> saveKey(view.privateKeyArea.getText().trim(), "private"));
 
-// Lưu khóa Private
-        view.savePrivKeyButton.addActionListener(e -> {
-            String privKey = view.privateKeyArea.getText().trim();
-            if (privKey.isEmpty()) {
-                showError("Không có khóa private để lưu!");
-                return;
-            }
+        view.encryptButton.addActionListener(e -> encryptData());
+        view.decryptButton.addActionListener(e -> decryptData());
 
-            JFileChooser fileChooser = new JFileChooser();
-            if (fileChooser.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
-                try (java.io.FileWriter writer = new java.io.FileWriter(fileChooser.getSelectedFile())) {
-                    writer.write(privKey);
-                    JOptionPane.showMessageDialog(view, "Đã lưu khóa private thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                } catch (Exception ex) {
-                    showError("Lỗi khi lưu khóa private: " + ex.getMessage());
-                }
-            }
-        });
-
-
-        // Mã hóa
-        view.encryptButton.addActionListener(e -> {
-            try {
-                String inputText = view.inputArea.getText().trim();
-                String pubKeyStr = view.publicKeyArea.getText().trim();
-                String transformation =  "RSA/" + view.paddingCombo.getSelectedItem();
-
-                if (inputText.isEmpty() || pubKeyStr.isEmpty()) {
-                    showError("Vui lòng nhập dữ liệu và khóa public!");
-                    return;
-                }
-
-                PublicKey publicKey = model.loadPublicKey(Base64.getDecoder().decode(pubKeyStr));
-                String encrypted = model.encrypt(inputText, publicKey, transformation);
-                view.outputArea.setText(encrypted);
-                if (lastInputFile != null) {
-                    try {
-                        java.io.File outputFile = new java.io.File(lastInputFile.getParent(), "output_rsa.txt");
-                        java.nio.file.Files.writeString(outputFile.toPath(), encrypted);
-                        JOptionPane.showMessageDialog(view, "Kết quả đã được lưu vào:\n" + outputFile.getAbsolutePath());
-                    } catch (Exception ex) {
-                        showError("Không ghi được file output: " + ex.getMessage());
-                    }
-                }
-            } catch (Exception ex) {
-                showError("Lỗi khi mã hóa: " + ex.getMessage());
-            }
-        });
         view.viewOutputButton.addActionListener(e -> {
             if (lastInputFile != null) {
-                java.io.File outputFile = new java.io.File(lastInputFile.getParent(), "output_rsa.txt");
+                File outputFile = new File(lastInputFile.getParent(), "output_rsa.txt");
                 if (outputFile.exists()) {
                     try {
-                        // Mở File Explorer và chọn file output
                         String cmd = String.format("explorer.exe /select,\"%s\"", outputFile.getAbsolutePath());
                         Runtime.getRuntime().exec(cmd);
                     } catch (Exception ex) {
@@ -137,41 +78,86 @@ public class RSAController {
                 showError("Chưa có file input được chọn.");
             }
         });
+    }
 
+    private void encryptData() {
+        try {
+            String inputText = view.inputArea.getText().trim();
+            String pubKeyStr = view.publicKeyArea.getText().trim();
+            String transformation = "RSA/" + view.paddingCombo.getSelectedItem();
 
-
-        // Giải mã
-        view.decryptButton.addActionListener(e -> {
-            try {
-                String cipherText = view.inputArea.getText().trim();
-                String privKeyStr = view.privateKeyArea.getText().trim();
-                String transformation =  "RSA/" + view.paddingCombo.getSelectedItem();
-
-                if (cipherText.isEmpty() || privKeyStr.isEmpty()) {
-                    showError("Vui lòng nhập dữ liệu và khóa private!");
-                    return;
-                }
-
-                PrivateKey privateKey = model.loadPrivateKey(Base64.getDecoder().decode(privKeyStr));
-                String decrypted = model.decrypt(cipherText, privateKey, transformation);
-                view.outputArea.setText(decrypted);
-            } catch (Exception ex) {
-                showError("Lỗi khi giải mã: " + ex.getMessage());
+            if (inputText.isEmpty() || pubKeyStr.isEmpty()) {
+                showError("Vui lòng nhập dữ liệu và khóa public!");
+                return;
             }
-        });
 
+            PublicKey publicKey = model.loadPublicKey(pubKeyStr);
+            String encrypted = model.encryptLongMessage(inputText, publicKey, transformation);
+            view.outputArea.setText(encrypted);
+
+            if (lastInputFile != null) {
+                try {
+                    File outputFile = new File(lastInputFile.getParent(), "output_rsa.txt");
+                    Files.writeString(outputFile.toPath(), encrypted);
+                    JOptionPane.showMessageDialog(view, "Kết quả đã được lưu vào:\n" + outputFile.getAbsolutePath());
+                } catch (Exception ex) {
+                    showError("Không ghi được file output: " + ex.getMessage());
+                }
+            }
+        } catch (Exception ex) {
+            showError("Lỗi khi mã hóa: " + ex.getMessage());
+        }
+    }
+
+    private void decryptData() {
+        try {
+            String cipherText = view.inputArea.getText().trim();
+            String privKeyStr = view.privateKeyArea.getText().trim();
+            String transformation = "RSA/" + view.paddingCombo.getSelectedItem();
+
+            if (cipherText.isEmpty() || privKeyStr.isEmpty()) {
+                showError("Vui lòng nhập dữ liệu và khóa private!");
+                return;
+            }
+
+            PrivateKey privateKey = model.loadPrivateKey(privKeyStr);
+            byte[] cipherBytes = java.util.Base64.getDecoder().decode(cipherText);
+            byte[] decryptedBytes = model.decrypt(cipherBytes, privateKey, transformation);
+            String decrypted = new String(decryptedBytes, "UTF-8");
+            view.outputArea.setText(decrypted);
+        } catch (Exception ex) {
+            showError("Lỗi khi giải mã: " + ex.getMessage());
+        }
+    }
+
+    private void saveKey(String keyContent, String keyType) {
+        if (keyContent.isEmpty()) {
+            showError("Không có khóa " + keyType + " để lưu!");
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
+            try (java.io.FileWriter writer = new java.io.FileWriter(fileChooser.getSelectedFile())) {
+                writer.write(keyContent);
+                JOptionPane.showMessageDialog(view, "Đã lưu khóa " + keyType + " thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                showError("Lỗi khi lưu khóa " + keyType + ": " + ex.getMessage());
+            }
+        }
     }
 
     private void showError(String msg) {
         JOptionPane.showMessageDialog(view, msg, "Lỗi", JOptionPane.ERROR_MESSAGE);
     }
+
     private void setupFileChoosers() {
         JFileChooser fileChooser = new JFileChooser();
 
         view.uploadPubFileButton.addActionListener(e -> {
             if (fileChooser.showOpenDialog(view) == JFileChooser.APPROVE_OPTION) {
                 try {
-                    byte[] content = java.nio.file.Files.readAllBytes(fileChooser.getSelectedFile().toPath());
+                    byte[] content = Files.readAllBytes(fileChooser.getSelectedFile().toPath());
                     view.publicKeyArea.setText(new String(content));
                 } catch (Exception ex) {
                     showError("Không đọc được file: " + ex.getMessage());
@@ -182,7 +168,7 @@ public class RSAController {
         view.uploadPrivFileButton.addActionListener(e -> {
             if (fileChooser.showOpenDialog(view) == JFileChooser.APPROVE_OPTION) {
                 try {
-                    byte[] content = java.nio.file.Files.readAllBytes(fileChooser.getSelectedFile().toPath());
+                    byte[] content = Files.readAllBytes(fileChooser.getSelectedFile().toPath());
                     view.privateKeyArea.setText(new String(content));
                 } catch (Exception ex) {
                     showError("Không đọc được file: " + ex.getMessage());
@@ -193,15 +179,13 @@ public class RSAController {
         view.chooseInputFileButton.addActionListener(e -> {
             if (fileChooser.showOpenDialog(view) == JFileChooser.APPROVE_OPTION) {
                 try {
-                    lastInputFile = fileChooser.getSelectedFile(); // Lưu đường dẫn file input
-                    byte[] content = java.nio.file.Files.readAllBytes(lastInputFile.toPath());
+                    lastInputFile = fileChooser.getSelectedFile();
+                    byte[] content = Files.readAllBytes(lastInputFile.toPath());
                     view.inputArea.setText(new String(content));
                 } catch (Exception ex) {
                     showError("Không đọc được file: " + ex.getMessage());
                 }
             }
         });
-
     }
-
 }

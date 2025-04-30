@@ -7,7 +7,7 @@ import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 
 public class HashModel {
     public String hash(String input, String algorithm) throws Exception {
-        if (algorithm.equalsIgnoreCase("Ripemd160")) {
+        if (algorithm.equalsIgnoreCase("RIPEMD-160")) {
             RIPEMD160Digest digest = new RIPEMD160Digest();
             byte[] inputBytes = input.getBytes(StandardCharsets.UTF_8);
             digest.update(inputBytes, 0, inputBytes.length);
